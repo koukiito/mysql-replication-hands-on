@@ -8,7 +8,7 @@
 docker-compose up -d
 ```
 
-### Execute querys to check the replication
+### Execute queries to check the replication
 
 #### In the master container
 
