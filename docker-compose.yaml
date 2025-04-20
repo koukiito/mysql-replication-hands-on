@@ -1,0 +1,56 @@
+services:
+  db-master:
+    container_name: ${COMPOSE_PROJECT_NAME}_master
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: app
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_TCP_PORT: 13306
+      REPLICA_USER: repl
+      REPLICA_PASSWORD: password
+    volumes:
+      - ./mysql/master/init:/docker-entrypoint-initdb.d
+      - ./mysql/master/conf.d:/etc/mysql/conf.d
+      - ./volume/master/mysql:/var/lib/mysql
+      - ./volume/master/log/mysql:/var/log/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 120s
+  db-slave:
+    container_name: ${COMPOSE_PROJECT_NAME}_slave
+    build:
+      context: ./mysql
+      dockerfile: Dockerfile
+    environment:
+      MYSQL_ROOT_PASSWORD: mysql
+      MYSQL_DATABASE: app
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_TCP_PORT: 13306
+      MASTER_HOST: db-master
+      MASTER_PORT: 13306
+      MASTER_USER: root
+      MASTER_PASSWORD: mysql
+      REPLICA_USER: repl
+      REPLICA_PASSWORD: password
+    depends_on:
+      db-master:
+        condition: service_healthy
+    volumes:
+      - ./mysql/slave/init:/docker-entrypoint-initdb.d
+      - ./mysql/slave/conf.d:/etc/mysql/conf.d
+      - ./volume/slave/mysql:/var/lib/mysql
+      - ./volume/slave/log/mysql:/var/log/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
+      interval: 5s
+      timeout: 30s
+      retries: 10
+      start_period: 120s
