@@ -18,7 +18,7 @@ services:
       - ./volume/master/mysql:/var/lib/mysql
       - ./volume/master/log/mysql:/var/log/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$mysql" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
       interval: 5s
       timeout: 30s
       retries: 10
@@ -49,7 +49,7 @@ services:
       - ./volume/slave/mysql:/var/lib/mysql
       - ./volume/slave/log/mysql:/var/log/mysql
     healthcheck:
-      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$mysql" ]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-u", "root", "-p$$MYSQL_ROOT_PASSWORD" ]
       interval: 5s
       timeout: 30s
       retries: 10
